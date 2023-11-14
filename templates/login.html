@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Login to your account{% endblock %}
+
+{% block head %}
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
+{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="mt-4">Login</h2>
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <ul style="list-style-type: none; padding: 0;">
+                {% for message in messages %}
+                <li class="alert alert-{{message[0]}}">{{ message[1] }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+            <form method="post">
+                {{ form.hidden_tag() }}
+                <div class="form-group mb-3">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-control") }}
+                    <span style="color: red;">
+                        {{ ', '.join(form.email.errors) }}
+                    </span>
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.password.label }}
+                    {{ form.password(class="form-control") }}
+                    <span style="color: red;">
+                        {{ ', '.join(form.password.errors) }}
+                    </span>
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+            <p>Don't have an account? <a href="/register">Register here</a></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
