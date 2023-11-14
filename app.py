@@ -105,13 +105,17 @@ def get_user_ratings():
 
         try:
             cursor = connection.cursor()
+            user_hex=session['USER_GUID']
             sql_query = "SELECT movie_title,release_year,rating,rating_date FROM bullflix.ratings_vw WHERE user_hex_guid = :user_hex"
             cursor.execute(sql_query, {"user_hex":user_hex})
             movie_ratings = cursor.fetchall()
             cursor.close()
         except Exception as e:
-            flash(f"Error: {str(e)}", 'danger')       
-        return render_template('login.html', movie_ratings=movie_ratings)
+            if session['USER_GUID'] is None:
+                return  redirect("/")
+            else:
+                flash(f"Error: {str(e)}", 'danger')       
+        return render_template('user_movie_ratings.html', movie_ratings=movie_ratings)
 
 
 

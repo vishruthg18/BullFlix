@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Ratings{% endblock %}
+
+{% block body %}
+    <h1>User Movie Ratings</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Movie Title</th>
+                <th>Release Year</th>
+                <th>Rating</th>
+                <th>Rating Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movie_rating in movie_ratings %}
+                <tr>
+                    <td>{{ movie_rating.movie_title }}</td>
+                    <td>{{ movie_rating.release_year }}</td>
+                    <td>{{ movie_rating.rating }}</td>
+                    <td>{{ movie_rating.rating_date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
