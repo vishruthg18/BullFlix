@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Movies Rated by {{ session['username'] }}{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            {% if rated_movies %}
+
+            <h2 class="my-4">Movies Rated by {{ session['username'] }}</h2>
+
+
+            <div class="row">
+                {% for movie in rated_movies %}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ movie[1] }}</h5>
+                            <p class="card-text">
+                                Your Rating: {{ movie[3] }}<br>
+                                Release Year: {{ movie[2] }}
+                                Guid: {{movie[0]}}
+                            </p>
+                            <a href="{{ url_for('ratings.rate_movie', movie_id=movie[0]) }}" class="btn btn-primary">
+                                Update Rating
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <h2>You have not yet rated any movies</h2>
+            <a href="{{ url_for('ratings.display_movies_to_rate') }}"></a>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

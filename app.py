@@ -1,22 +1,19 @@
+import binascii
 from flask import Flask, render_template, redirect, request, url_for, flash
+from db import connection
 from forms import LoginForm, RegisterForm
 from flask import session
-import oracledb
+from ratings import ratings_blueprint
 import bcrypt
 
+
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.register_blueprint(ratings_blueprint)
 
 import os
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
-
-# Establish a connection to Oracle database
-connection = oracledb.connect(
-    user="BULLFLIX_WEB",
-    password="usf1956!",
-    dsn="reade.forest.usf.edu:1521/cdb9"
-)
-print("Successfully connected to Oracle Database")
 
 # use sqlite for development
 # import sqlite3
@@ -32,7 +29,7 @@ def index():
 def display_users():
     try:
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM BULLFLIX.USERS")
+        cursor.execute("SELECT * FROM USERS")
         users = cursor.fetchall()
         cursor.close()
         return render_template('users.html', users=users)
@@ -48,12 +45,14 @@ def login():
         password = form.password.data
         try:
             cursor = connection.cursor()
-            sql_query = "SELECT USER_GUID,EMAIL,USER_NAME,PIP_HASH FROM BULLFLIX.USERS_VW WHERE EMAIL = :email"
+            sql_query = "SELECT * FROM BULLFLIX.users WHERE EMAIL = :email"
             cursor.execute(sql_query, {"email":email})
             user = cursor.fetchone()
             if user:
-                if bcrypt.checkpw(password.encode('utf-8'), user[3]):
+                if password == str(user[3]):
                     session['username'] = user[1]
+                    session['user_id'] = binascii.hexlify(user[0]).decode('utf-8')
+                    print("session user id", session['user_id'])
                     return redirect(url_for('index'))
                 else:
                     flash('Login unsuccessful. Please check your email and password.', 'danger')
@@ -88,7 +87,7 @@ def register():
             print("hashed password ", hashed_password)
 
             # insert new user
-            sql_query = "INSERT INTO BULLFLIX.USERS (EMAIL, USER_NAME, PIP_HASH) VALUES (:email, :username, ORA_HASH(:password))"
+            sql_query = "INSERT INTO BULLFLIX.USERS (EMAIL, USER_NAME, PIP_HASH) VALUES (:email, :username, :password)"
             cursor.execute(sql_query, {"email":email, "username":username, "password":password})
             connection.commit()
             cursor.close()
@@ -100,30 +99,13 @@ def register():
             flash(f"Error: {str(e)}", 'danger')
     return render_template('register.html', form=form)
 
-@app.route('/getRatings', methods=['GET'])
-def get_user_ratings():
-
-        try:
-            cursor = connection.cursor()
-            user_hex=session['USER_GUID']
-            sql_query = "SELECT movie_title,release_year,rating,rating_date FROM bullflix.ratings_vw WHERE user_hex_guid = :user_hex"
-            cursor.execute(sql_query, {"user_hex":user_hex})
-            movie_ratings = cursor.fetchall()
-            cursor.close()
-        except Exception as e:
-            if session['USER_GUID'] is None:
-                return  redirect("/")
-            else:
-                flash(f"Error: {str(e)}", 'danger')       
-        return render_template('user_movie_ratings.html', movie_ratings=movie_ratings)
-
-
-
 @app.route('/logout')
 def logout():
     # remove the username from the session if it's there
     session.pop('username', None)
     return redirect('login')
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

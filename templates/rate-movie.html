@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Rate movie {{movie_title}}{% endblock %}
+
+
+{% block body %}
+
+<div class="container mt-5">
+    <h2>Rate the Movie {{ movie_title }}</h2>
+    <br>
+    <form method="post">
+        <div class="form-group">
+            {% if previous_rating %}
+            <label for="rating">Previous Rating: {{ previous_rating }}</label>
+            {% endif %}
+
+            <label for="rating">Select Rating:</label>
+            <select class="form-control my-3" id="rating" name="rating">
+                {% for value in range(1, 6) %}
+                <option value="{{ value }}" {% if value==previous_rating %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+{% endblock %}

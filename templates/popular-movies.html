@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Popular movies for {{ session['username'] }}{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            {% if popular_movies %}
+
+            <h2 class="my-4">Popular movies for {{ session['username'] }}</h2>
+
+
+            <div class="row">
+                {% for movie in popular_movies %}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ movie[1] }}</h5>
+                            <p class="card-text">
+                                IMDB Rating: {{ movie[3] }}<br>
+                                IMDB Votes: {{ movie[4] }}<br>
+                                Release Year: {{ movie[2] }}
+                            </p>
+                            <a href="{{ url_for('ratings.rate_movie', movie_id=movie[0]) }}" class="btn btn-primary">
+                                Rate Movie
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <h2>Popular movies not found</h2>
+            <a href="{{ url_for('ratings.display_movies_to_rate') }}"></a>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
